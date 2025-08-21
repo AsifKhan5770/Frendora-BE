@@ -3,6 +3,7 @@ const dotenv = require('dotenv')
 const cors = require('cors')
 const connectDB = require('./config/db')
 const postRoutes = require('./routes/postRoutes')
+const userRoutes = require('./routes/userRoutes')
 
 dotenv.config()
 connectDB()
@@ -16,6 +17,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/posts', postRoutes)
+app.use('/api/users', userRoutes)
 
 const PORT = process.env.PORT || 3002
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
