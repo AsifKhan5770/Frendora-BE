@@ -58,7 +58,7 @@ exports.deletepost = async (req,res) => {
 }
 
 // Search posts (by title or author)
-exports.searchPosts = async (req, res) => {
+exports.searchposts = async (req, res) => {
   try {
     const { query } = req.query   // e.g. /api/posts/search?query=John
 
