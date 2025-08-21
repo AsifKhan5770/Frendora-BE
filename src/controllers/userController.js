@@ -78,3 +78,23 @@ exports.searchusers = async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 }
+
+// Login user
+exports.loginuser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Simple password check (⚠️ not secure — later we can use bcrypt)
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    res.json({ message: "Login successful", user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
