@@ -2,17 +2,30 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/userModel')
 
-// Create user 
-exports.createuser = async (req,res) => {
-    try {
-        const user = new User(req.body)
-        await user.save()
-        res.status(201).json(user)
-    } catch (error) {
-        res.status(400).json({ message: error.message })
-    } 
-}
+// Create user
+exports.createuser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: email.trim().toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    const user = new User({ name, email: email.trim().toLowerCase(), password });
+    await user.save();
+
+    const { password: _, ...safeUser } = user.toObject(); // hide password
+    res.status(201).json({ message: "User created successfully", user: safeUser });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
 // Get All user
 exports.getusers = async (req,res) => {
     try {
@@ -86,15 +99,25 @@ exports.loginuser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
-    // Compare password with bcrypt
+    // Normalize email
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-    res.json({ message: "Login successful", user });
+    // Hide password before sending response
+    const { password: _, ...safeUser } = user.toObject();
+    res.json({ message: "Login successful", user: safeUser });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
