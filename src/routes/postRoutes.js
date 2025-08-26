@@ -1,12 +1,16 @@
-const express = require('express')
-const router = express.Router()
-const postController = require('../controllers/postController')
+const express = require('express');
+const router = express.Router();
+const postController = require('../controllers/postController');
+const auth = require('../middleware/auth'); // ✅ Import auth middleware
 
-router.post('/', postController.createpost)
-router.get('/', postController.getposts)
-router.get('/search', postController.searchposts)
-router.get('/:id', postController.getpostById)
-router.put('/:id', postController.updatepost)
-router.delete('/:id', postController.deletepost)
+// Public Routes
+router.get('/', postController.getposts);
+router.get('/search', postController.searchposts);
+router.get('/:id', postController.getpostById);
 
-module.exports = router
+// ✅ Protected Routes
+router.post('/', auth, postController.createpost);
+router.put('/:id', auth, postController.updatepost);
+router.delete('/:id', auth, postController.deletepost);
+
+module.exports = router;

@@ -1,18 +1,22 @@
-const express = require('express')
-const router = express.Router()
-const userController = require('../controllers/userController')
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/userController');
+const auth = require('../middleware/auth'); // ✅ Import auth middleware
 
-router.post('/', userController.createuser)
-router.post('/login', userController.loginuser)
-router.get('/', userController.getusers)
-router.get('/search', userController.searchusers)
-router.get('/:id', userController.getuserById)
-router.put('/:id', userController.updateuser)
-router.delete('/:id', userController.deleteuser)
+// Public Routes
+router.post('/', userController.createuser);
+router.post('/login', userController.loginuser);
+router.get('/search', userController.searchusers);
 
-// profile routes
-router.get('/profile/:id', userController.getProfile)
-router.put('/profile/:id/name', userController.updateName)
-router.put('/profile/:id/password', userController.changePassword)
+// ✅ Protected Routes
+router.get('/', auth, userController.getusers);
+router.get('/:id', auth, userController.getuserById);
+router.put('/:id', auth, userController.updateuser);
+router.delete('/:id', auth, userController.deleteuser);
 
-module.exports = router
+// Profile Routes (Protected)
+router.get('/profile/:id', auth, userController.getProfile);
+router.put('/profile/:id/name', auth, userController.updateName);
+router.put('/profile/:id/password', auth, userController.changePassword);
+
+module.exports = router;
