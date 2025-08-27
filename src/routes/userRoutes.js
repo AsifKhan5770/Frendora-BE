@@ -3,10 +3,12 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const auth = require('../middleware/auth'); // ✅ Import auth middleware
 
-// Public Routes
+// Public Routes - Only registration and login should be public
 router.post('/', userController.createuser);
 router.post('/login', userController.loginuser);
-router.get('/search', userController.searchusers);
+
+// Protected Routes - User search requires authentication
+router.get('/search', auth, userController.searchusers);
 
 // ✅ Protected Routes
 router.get('/', auth, userController.getusers);
