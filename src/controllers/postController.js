@@ -90,7 +90,7 @@ exports.updatepost = async (req,res) => {
     try {
         console.log('Update request - ID:', req.params.id);
         console.log('Update request - Body:', req.body);
-        console.log('Update request - File:', req.file);
+        console.log('Update request - Files:', req.files);
         
         const updateData = {
             title: req.body.title,
@@ -98,17 +98,40 @@ exports.updatepost = async (req,res) => {
             author: req.body.author
         };
         
-        // Add media files if new files were uploaded
+        // Initialize media array
+        updateData.media = [];
+        
+        // Add existing media that should be kept
+        if (req.body.existingMedia) {
+            // Handle multiple existingMedia fields
+            const existingMediaArray = Array.isArray(req.body.existingMedia) 
+                ? req.body.existingMedia 
+                : [req.body.existingMedia];
+            
+            existingMediaArray.forEach(mediaStr => {
+                try {
+                    const media = JSON.parse(mediaStr);
+                    updateData.media.push(media);
+                } catch (e) {
+                    console.error('Error parsing existing media:', e);
+                }
+            });
+            console.log('Existing media to keep:', updateData.media.length, 'files');
+        }
+        
+        // Add new media files if uploaded
         if (req.files && req.files.length > 0) {
-            updateData.media = req.files.map(file => ({
+            const newMedia = req.files.map(file => ({
                 filename: file.filename,
                 originalName: file.originalname,
                 mimetype: file.mimetype,
                 size: file.size
             }));
+            updateData.media.push(...newMedia);
             console.log('New media files added:', req.files.length, 'files');
         }
         
+        console.log('Final update data - Total media:', updateData.media.length, 'files');
         console.log('Final update data:', updateData);
         
         const post = await Post.findByIdAndUpdate(req.params.id, updateData, {
