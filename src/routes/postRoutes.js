@@ -5,10 +5,10 @@ const postController = require('../controllers/postController');
 const auth = require('../middleware/auth'); // ✅ Import auth middleware
 const upload = require('../middleware/upload'); // Import upload middleware
 
-// Protected Routes - All post operations require authentication
-router.get('/', auth, postController.getposts);
-router.get('/search', auth, postController.searchposts);
-router.get('/:id', auth, postController.getpostById);
+// Public Routes - Anyone can view posts
+router.get('/', postController.getposts);
+router.get('/search', postController.searchposts);
+router.get('/:id', postController.getpostById);
 
 // ✅ Protected Routes
 router.post('/', auth, upload.array('media', 5), postController.createpost);
