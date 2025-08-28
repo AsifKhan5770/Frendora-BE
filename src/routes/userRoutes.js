@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const auth = require('../middleware/auth'); // ✅ Import auth middleware
+const upload = require('../middleware/upload');
 
 // Public Routes - Only registration and login should be public
 router.post('/', userController.createuser);
@@ -20,5 +21,9 @@ router.delete('/:id', auth, userController.deleteuser);
 router.get('/profile/:id', auth, userController.getProfile);
 router.put('/profile/:id/name', auth, userController.updateName);
 router.put('/profile/:id/password', auth, userController.changePassword);
+
+// Avatar Routes (Protected)
+router.post('/profile/:id/avatar', auth, upload.single('avatar'), userController.uploadAvatar);
+router.delete('/profile/:id/avatar', auth, userController.deleteAvatar);
 
 module.exports = router;
