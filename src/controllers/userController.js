@@ -176,3 +176,43 @@ exports.changePassword = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ✅ Upload Avatar (Protected)
+exports.uploadAvatar = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No avatar file uploaded" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { avatarUrl: req.file.filename },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ 
+      message: "Avatar uploaded successfully", 
+      user
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// ✅ Delete Avatar (Protected)
+exports.deleteAvatar = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Remove avatar filename from user document
+    user.avatarUrl = undefined;
+    await user.save();
+
+    res.json({ message: "Avatar deleted successfully", user: user.select("-password") });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
