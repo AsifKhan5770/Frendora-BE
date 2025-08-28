@@ -25,7 +25,17 @@ if (!process.env.JWT_SECRET) {
 connectDB()
 
 const app = express()
-app.use(cors())
+// CORS configuration for Vercel deployment
+app.use(cors({
+  origin: [
+    'https://frendora-fe.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:3001'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}))
 app.use(express.json())
 // Ensure uploads directory exists
 const fs = require('fs');
