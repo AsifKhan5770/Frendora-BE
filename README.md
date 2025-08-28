@@ -1,4 +1,4 @@
-# Node.js Express MongoDB API
+# Node.js Express MongoDB API 
 
 A simple REST API built using **Node.js**, **Express**, and **MongoDB** with **Mongoose**.  
 The project follows a modular folder structure (MVC pattern) for scalability and maintainability.
