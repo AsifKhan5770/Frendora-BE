@@ -132,7 +132,7 @@ exports.loginuser = async (req, res) => {
 // ✅ Get Profile (Protected)
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.params.id).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (error) {
@@ -145,7 +145,7 @@ exports.updateName = async (req, res) => {
   try {
     const { name } = req.body;
     const user = await User.findByIdAndUpdate(
-      req.user.id,
+      req.params.id,
       { name },
       { new: true, runValidators: true }
     ).select("-password");
@@ -161,7 +161,7 @@ exports.updateName = async (req, res) => {
 exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.params.id);
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -211,7 +211,7 @@ exports.deleteAvatar = async (req, res) => {
     user.avatarUrl = undefined;
     await user.save();
 
-    res.json({ message: "Avatar deleted successfully", user: user.select("-password") });
+    res.json({ message: "Avatar deleted successfully", user: user });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
