@@ -5,9 +5,9 @@ const postController = require('../controllers/postController');
 const auth = require('../middleware/auth'); // ✅ Import auth middleware
 const upload = require('../middleware/upload'); // Import upload middleware
 
-// Public Routes - Anyone can view posts
-router.get('/', postController.getposts);
+// Public Routes - Specific routes first (before parameterized routes)
 router.get('/search', postController.searchposts);
+router.get('/', postController.getposts);
 router.get('/:id', postController.getpostById);
 
 // ✅ Protected Routes

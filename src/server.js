@@ -25,7 +25,7 @@ if (!process.env.JWT_SECRET) {
 connectDB()
 
 const app = express()
-// CORS configuration for Vercel deployment
+
 // CORS configuration for Vercel deployment
 app.use(cors({
   origin: [
@@ -35,27 +35,11 @@ app.use(cors({
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept'],
-  preflightContinue: false,
-  optionsSuccessStatus: 200
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept']
 }))
 
 // Handle preflight requests explicitly
 app.options('*', cors())
-
-// Add CORS headers to all responses
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://frendora-fe.vercel.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Origin, Accept');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-})
 app.use(express.json())
 // Ensure uploads directory exists
 const fs = require('fs');
