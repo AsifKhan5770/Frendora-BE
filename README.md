@@ -5,7 +5,7 @@ The project follows a modular folder structure (MVC pattern) for scalability and
 
 ---
 
-## 📂 Folder Structure
+## 📂 Folder Structure  
 
 ```     
 project-root/
