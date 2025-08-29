@@ -103,24 +103,40 @@ exports.updatepost = async (req,res) => {
         
         // Add existing media that should be kept
         if (req.body.existingMedia) {
+            console.log('Raw existingMedia from request:', req.body.existingMedia);
+            
             // Handle multiple existingMedia fields
             const existingMediaArray = Array.isArray(req.body.existingMedia) 
                 ? req.body.existingMedia 
                 : [req.body.existingMedia];
             
-            existingMediaArray.forEach(mediaStr => {
+            console.log('Existing media array:', existingMediaArray);
+            
+            existingMediaArray.forEach((mediaStr, index) => {
                 try {
                     const media = JSON.parse(mediaStr);
+                    console.log(`Parsed media ${index}:`, media);
                     updateData.media.push(media);
                 } catch (e) {
-                    console.error('Error parsing existing media:', e);
+                    console.error(`Error parsing existing media ${index}:`, e);
+                    console.error('Raw media string:', mediaStr);
                 }
             });
             console.log('Existing media to keep:', updateData.media.length, 'files');
+        } else {
+            console.log('No existingMedia in request body');
         }
         
         // Add new media files if uploaded
         if (req.files && req.files.length > 0) {
+            console.log('New files received:', req.files.length, 'files');
+            console.log('File details:', req.files.map(f => ({ 
+                fieldname: f.fieldname, 
+                originalname: f.originalname, 
+                mimetype: f.mimetype, 
+                size: f.size 
+            })));
+            
             const newMedia = req.files.map(file => ({
                 filename: file.filename,
                 originalName: file.originalname,
@@ -129,6 +145,8 @@ exports.updatepost = async (req,res) => {
             }));
             updateData.media.push(...newMedia);
             console.log('New media files added:', req.files.length, 'files');
+        } else {
+            console.log('No new files uploaded');
         }
         
         console.log('Final update data - Total media:', updateData.media.length, 'files');
