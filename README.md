@@ -4,7 +4,7 @@ A simple REST API built using **Node.js**, **Express**, and **MongoDB** with **M
 The project follows a modular folder structure (MVC pattern) for scalability and maintainability.
 ---
 
-## 📂 Folder Structure  
+## 📂 Folder Structure
 
 ```     
 project-root/
