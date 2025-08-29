@@ -57,17 +57,6 @@ node src/server.js
 
 ---
 
-## 📡 API Endpoints
-
-| Method | Endpoint     | Description         |
-|--------|-------------|---------------------|
-| GET    | `/`         | Home route          |
-| GET    | `/users`    | Get all users       |
-| GET    | `/products` | Get all products    |
-| GET    | `/posts`    | Get all posts       |
-
----
-
 ## 🛠 Technologies Used
 - Node.js
 - Express.js

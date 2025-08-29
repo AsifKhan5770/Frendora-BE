@@ -32,7 +32,12 @@ exports.createuser = async (req, res) => {
     res.status(201).json({
       message: "User created successfully",
       token: generateToken(user._id, user.name),
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email,
+        avatarUrl: user.avatarUrl 
+      },
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -122,7 +127,12 @@ exports.loginuser = async (req, res) => {
     res.json({
       message: "Login successful",
       token: generateToken(user._id, user.name),
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { 
+        id: user._id, 
+        name: user.name, 
+        email: user.email,
+        avatarUrl: user.avatarUrl 
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
