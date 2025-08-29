@@ -21,12 +21,12 @@ exports.createuser = async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Signup - Original password length:', password.length);
 
     const user = await User.create({
       name,
       email: email.toLowerCase(),
-      password: hashedPassword,
+      password: password, // Let the model handle hashing
     });
 
     res.status(201).json({
@@ -121,7 +121,14 @@ exports.loginuser = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    console.log('Login attempt - Email:', email);
+    console.log('Login attempt - Input password length:', password.length);
+    console.log('Login attempt - Stored hash length:', user.password.length);
+    console.log('Login attempt - Hash starts with:', user.password.substring(0, 10) + '...');
+
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Login attempt - Password match:', isMatch);
+    
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
     res.json({
@@ -175,10 +182,18 @@ exports.changePassword = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
+    console.log('Change password attempt - User ID:', req.params.id);
+    console.log('Change password attempt - Old password length:', oldPassword.length);
+    console.log('Change password attempt - Stored hash length:', user.password.length);
+    console.log('Change password attempt - Hash starts with:', user.password.substring(0, 10) + '...');
+
     const isMatch = await bcrypt.compare(oldPassword, user.password);
+    console.log('Change password attempt - Old password match:', isMatch);
+    
     if (!isMatch) return res.status(401).json({ message: "Old password is incorrect" });
 
-    user.password = await bcrypt.hash(newPassword, 10);
+    // Set plain text password - let the model pre-save hook handle hashing
+    user.password = newPassword;
     await user.save();
 
     res.json({ message: "Password updated successfully" });
