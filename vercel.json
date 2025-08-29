@@ -17,10 +17,5 @@
         "Access-Control-Allow-Credentials": "true"
       }
     }
-  ],
-  "functions": {
-    "src/server.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
