@@ -21,6 +21,17 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
+// Check if Cloudinary environment variables exist
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.error('❌ Cloudinary environment variables are required!');
+  console.error('Please add these to your .env file:');
+  console.error('CLOUDINARY_CLOUD_NAME=your_cloud_name');
+  console.error('CLOUDINARY_API_KEY=your_api_key');
+  console.error('CLOUDINARY_API_SECRET=your_api_secret');
+  console.error('Or get them from: https://cloudinary.com/console');
+  process.exit(1);
+}
+
 // Connect to database
 connectDB()
 
@@ -41,15 +52,24 @@ app.use(cors({
 // Handle preflight requests explicitly
 app.options('*', cors())
 app.use(express.json())
-// Ensure uploads directory exists
-const fs = require('fs');
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('📁 Created uploads directory:', uploadsDir);
-}
 
-app.use('/uploads', express.static(uploadsDir)) // Serve uploaded images
+// Serve local uploads directory for development
+if (process.env.NODE_ENV !== 'production' && process.env.VERCEL !== '1') {
+  const fs = require('fs');
+  const path = require('path');
+  const uploadsDir = path.join(__dirname, '../uploads');
+  
+  // Ensure uploads directory exists
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('📁 Created uploads directory:', uploadsDir);
+  }
+  
+  app.use('/uploads', express.static(uploadsDir));
+  console.log('📁 Serving local uploads directory for development');
+} else {
+  console.log('☁️ Using Cloudinary for file storage in production');
+}
 
 app.get('/', (req, res) => {
   res.send('Backend Running...');
@@ -96,38 +116,34 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
-// Test upload directory
-app.get('/test-upload', (req, res) => {
+// Test Cloudinary configuration
+app.get('/test-cloudinary', async (req, res) => {
   try {
-    const fs = require('fs');
-    const uploadsDir = path.join(__dirname, '../uploads');
-    const exists = fs.existsSync(uploadsDir);
-    const stats = exists ? fs.statSync(uploadsDir) : null;
+    const cloudinary = require('./config/cloudinary');
+    
+    // Test if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+      return res.status(500).json({ 
+        message: 'Cloudinary not configured',
+        error: 'CLOUDINARY_CLOUD_NAME environment variable is missing',
+        timestamp: new Date().toISOString()
+      });
+    }
     
     res.json({ 
-      message: 'Upload directory test',
-      uploadsDir: uploadsDir,
-      exists: exists,
-      isDirectory: exists ? stats.isDirectory() : false,
-      writable: exists ? (stats.mode & fs.constants.W_OK) !== 0 : false,
+      message: 'Cloudinary configuration test',
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      hasApiKey: !!process.env.CLOUDINARY_API_KEY,
+      hasApiSecret: !!process.env.CLOUDINARY_API_SECRET,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     res.status(500).json({ 
-      message: 'Upload directory test failed',
-      error: error.message 
+      message: 'Cloudinary test failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
     });
   }
-});
-
-// Test endpoint to check request parsing
-app.post('/test-request', (req, res) => {
-  res.json({
-    message: 'Request received',
-    body: req.body,
-    headers: req.headers,
-    timestamp: new Date().toISOString()
-  });
 });
 
 app.use('/api/posts', postRoutes)
