@@ -26,6 +26,7 @@ connectDB()
 
 const app = express()
 // CORS configuration for Vercel deployment
+// CORS configuration for Vercel deployment
 app.use(cors({
   origin: [
     'https://frendora-fe.vercel.app',
@@ -34,8 +35,27 @@ app.use(cors({
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Origin', 'Accept'],
+  preflightContinue: false,
+  optionsSuccessStatus: 200
 }))
+
+// Handle preflight requests explicitly
+app.options('*', cors())
+
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://frendora-fe.vercel.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Origin, Accept');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+})
 app.use(express.json())
 // Ensure uploads directory exists
 const fs = require('fs');
@@ -49,6 +69,16 @@ app.use('/uploads', express.static(uploadsDir)) // Serve uploaded images
 
 app.get('/', (req, res) => {
   res.send('Backend Running...');
+});
+
+// Test CORS endpoint
+app.get('/test-cors', (req, res) => {
+  res.json({ 
+    message: 'CORS test successful', 
+    timestamp: new Date().toISOString(),
+    origin: req.headers.origin,
+    method: req.method
+  });
 });
 
 // Test endpoint to check if server is working
